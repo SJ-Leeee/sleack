@@ -1,4 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 
-@Controller('channels')
-export class ChannelsController {}
+@Controller('api/workspaces/:url/channels')
+export class ChannelsController {
+  @Get()
+  getAllChannels() {}
+
+  @Get(':id')
+  getSpecificChannel() {}
+
+  @Post()
+  createChannel() {}
+
+  @Get(':id/chats')
+  getChatsInChannels() {}
+}

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
 @Controller('api/workspaces/:url/dms')
 export class DmsController {
@@ -7,4 +7,7 @@ export class DmsController {
     console.log(query.perPage, query.page);
     console.log(param.url, param.id);
   }
+
+  @Post(':id/chats')
+  sendDm(@Body() body) {}
 }
