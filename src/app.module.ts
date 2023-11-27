@@ -9,7 +9,13 @@ import { ChannelsModule } from './channels/channels.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), UsersModule, DmsModule, ChannelsModule, WorkspacesModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    UsersModule,
+    DmsModule,
+    ChannelsModule,
+    WorkspacesModule,
+  ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
 })
