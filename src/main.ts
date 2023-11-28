@@ -5,7 +5,8 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env.PORT || 3000;
+  const port = 3000;
+  const test = process.env.MYSQL_USERNAME;
 
   const config = new DocumentBuilder()
     .setTitle('Sleack API')
@@ -17,7 +18,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app.listen(port);
-  console.log(`listening on port ${port}`);
+  console.log(`listening on port ${test}`);
 
   if (module.hot) {
     module.hot.accept();
