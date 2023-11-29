@@ -20,6 +20,8 @@ import { UserDto } from 'src/common/dto/user.dto';
 import { User } from 'src/common/decorator/user.decorator';
 import { UndefinedToNullInterceptor } from 'src/common/intercepters/undefinedToNull.interceptor';
 import { LocalAuthGuard } from 'src/auth/local-auth.gaurd';
+import { LoggedInGuard } from 'src/auth/logged-in-guard';
+import { NotLoggedInGuard } from 'src/auth/not-logged-in-guard';
 
 @UseInterceptors(UndefinedToNullInterceptor)
 @ApiTags('USER')
@@ -33,13 +35,14 @@ export class UsersController {
   @ApiOperation({ summary: '내 정보 조회' })
   @Get()
   getUser(@User() user) {
-    return user;
+    return user || false;
   }
 
   @ApiOperation({ summary: '회원가입' })
+  @UseGuards(NotLoggedInGuard)
   @Post()
   async signUp(@Body() data: JoinRequestDto) {
-    await this.usersService.signUp(data);
+    await this.usersService.join(data);
   }
 
   @ApiOkResponse({
@@ -55,6 +58,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '로그아웃' })
+  @UseGuards(LoggedInGuard)
   @Post('logout')
   logout(@Req() req, @Res() res) {
     req.logout(); // passport 로 구현

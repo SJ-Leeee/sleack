@@ -35,3 +35,4 @@ const dataSource = new DataSource({
 });
 
 export default dataSource;
+// 아마 db:create 하기 위해 있는것
