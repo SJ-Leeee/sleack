@@ -1,27 +1,62 @@
-import { Controller, Delete, Get, Post } from '@nestjs/common';
-import { User } from 'src/common/decorator/user.decorator';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { WorkspacesService } from './workspaces.service';
+import { User } from 'src/common/decorator/user.decorator';
+import { Users } from '../entities/Users';
+import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 
+@ApiTags('WORKSPACE')
 @Controller('api/workspaces')
 export class WorkspacesController {
-  constructor(private readonly workspacsService: WorkspacesService) {}
+  constructor(private workspacesService: WorkspacesService) {}
+
   @Get()
-  getMyWorkspaces(@User() user) {
-    this.workspacsService.getMyWorkspaces(user.id);
+  async getMyWorkspaces(@User() user: Users) {
+    return this.workspacesService.findMyWorkspaces(user.id);
   }
 
   @Post()
-  createWorkspace() {}
+  async createWorkspace(@User() user: Users, @Body() body: CreateWorkspaceDto) {
+    return this.workspacesService.createWorkspace(
+      body.workspace,
+      body.url,
+      user.id,
+    );
+  }
 
-  @Get(':workspace/members')
-  getAllMembersFromWorkspace() {}
+  @Get(':url/members')
+  async getWorkspaceMembers(@Param('url') url: string) {
+    return this.workspacesService.getWorkspaceMembers(url);
+  }
 
-  @Post(':workspaced/members')
-  inviteMembersToWorkspace() {}
+  @Post(':url/members')
+  async createWorkspaceMembers(
+    @Param('url') url: string,
+    @Body('email') email,
+  ) {
+    return this.workspacesService.createWorkspaceMembers(url, email);
+  }
 
-  @Delete(':workspace/members/:id')
-  kickMemberFromWorkspace() {}
+  @Get(':url/members/:id')
+  async getWorkspaceMember(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
+  }
 
-  @Get(':workspace/users/:id')
-  getMemberInfoInWorkspace() {}
+  @Get(':url/users/:id')
+  async DEPRECATED_getWorkspaceUser(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
+  }
 }
