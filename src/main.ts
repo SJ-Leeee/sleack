@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { HttpExceptionFilter } from './httpExceptionFilter';
+import { ValidationPipe } from '@nestjs/common';
+import { passport } from 'passport';
 declare const module: any;
 
 async function bootstrap() {
@@ -16,8 +19,12 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
+  app.useGlobalPipes(new ValidationPipe());
+  // class-validator 쓰는 것을 다 확인해줌
+  app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(port);
+  app.use(passport.initialize());
+  app.use(passport.session());
   console.log(`listening on port ${test}`);
 
   if (module.hot) {
