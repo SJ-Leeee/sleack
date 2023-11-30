@@ -6,6 +6,7 @@ import { Channels } from '../entities/Channels';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Workspaces } from '../entities/Workspaces';
 import { Users } from '../entities/Users';
+import { EventsGateway } from 'src/events/events.gateway';
 
 @Injectable()
 export class ChannelsService {
@@ -20,6 +21,7 @@ export class ChannelsService {
     private channelChatsRepository: Repository<ChannelChats>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    private eventGateway: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -113,22 +115,49 @@ export class ChannelsService {
     perPage: number,
     page: number,
   ) {
-    return this.channelChatsRepository
-      .createQueryBuilder('channelChats')
-      .innerJoin('channelChats.Channel', 'channel', 'channel.name = :name', {
-        name,
-      })
-      .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
-        url,
-      })
-      .innerJoinAndSelect('channelChats.User', 'user')
-      .orderBy('channelChats.createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
-      .getMany();
+    return (
+      this.channelChatsRepository
+        .createQueryBuilder('channelChats')
+        .innerJoin('channelChats.Channel', 'channel', 'channel.name = :name', {
+          name,
+        })
+        .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
+          url,
+        })
+        .innerJoinAndSelect('channelChats.User', 'user')
+        .orderBy('channelChats.createdAt', 'DESC')
+        .take(perPage)
+        .skip(perPage * (page - 1))
+        // 페이지네이션 테스트해보기
+        .getMany()
+    );
   }
 
-  async createWorkspaceChannelChats() {}
+  async createWorkspaceChannelChats(url, name, content, myId) {
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('chaneel.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
+
+    if (!channel) {
+      throw new NotFoundException('채널이 존재하지 않습니다.');
+    }
+
+    const chats = new ChannelChats();
+    chats.content = content;
+    chats.UserId = myId;
+    chats.ChannelId = channel.id;
+
+    const saveChat = await this.channelChatsRepository.save(chats);
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: { id: saveChat.id },
+      relations: ['User', 'Channel'],
+    });
+    // 소켓으로 전달할 예정
+  }
 
   async createWorkspaceChannelImages() {}
 

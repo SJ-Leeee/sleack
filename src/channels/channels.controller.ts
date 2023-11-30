@@ -80,7 +80,12 @@ export class ChannelsController {
     @Body('content') content,
     @User() user: Users,
   ) {
-    return this.channelsService.createWorkspaceChannelChats();
+    return this.channelsService.createWorkspaceChannelChats(
+      url,
+      name,
+      content,
+      user.id,
+    );
   }
 
   @Post(':url/channels/:name/images')
